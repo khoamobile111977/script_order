@@ -1,4 +1,7 @@
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer 
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -33,7 +36,7 @@ local function saveConfigs(username, configData)
     end
 end
 
-repeat wait() until player:FindFirstChild("PlayerGui")
+local playerGui = player:WaitForChild("PlayerGui")
 
 local MainScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
@@ -44,7 +47,7 @@ local ClearButton = Instance.new("TextButton")
 local SettingsButton = Instance.new("TextButton")
 local UICornerMain = Instance.new("UICorner")
 
-MainScreenGui.Parent = player:WaitForChild("PlayerGui")
+MainScreenGui.Parent = playerGui
 
 MainFrame.Size = UDim2.new(0, 200, 0, 40)
 MainFrame.Position = UDim2.new(0.5, -100, 0, 10)
@@ -68,13 +71,13 @@ ServerTimeLabel.BackgroundTransparency = 1
 ServerTimeLabel.Parent = MainFrame
 
 local injectStartTime = os.time()
-spawn(function()
+task.spawn(function()
     while true do
         local elapsedTime = os.time() - injectStartTime
         local minutes = math.floor(elapsedTime / 60)
         local seconds = elapsedTime % 60
         ServerTimeLabel.Text = string.format("Thời gian: %02d:%02d", minutes, seconds)
-        wait(1)
+        task.wait(1)
     end
 end)
 
