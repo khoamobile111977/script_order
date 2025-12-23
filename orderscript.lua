@@ -49,8 +49,9 @@ local UICornerMain = Instance.new("UICorner")
 
 MainScreenGui.Parent = playerGui
 
-MainFrame.Size = UDim2.new(0, 200, 0, 40)
-MainFrame.Position = UDim2.new(0.5, -100, 0, 10)
+-- Tăng kích thước từ 200x40 lên 280x55 (tăng 40% width, tăng 37.5% height)
+MainFrame.Size = UDim2.new(0, 280, 0, 55)
+MainFrame.Position = UDim2.new(0.5, -140, 0, 10)
 MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BackgroundTransparency = 1
 MainFrame.BorderSizePixel = 0
@@ -132,8 +133,9 @@ local OrderInputBox = Instance.new("TextBox")
 local DoneButton = Instance.new("TextButton")
 local UICornerConfig = Instance.new("UICorner")
 
-ConfigWindow.Size = UDim2.new(0, 175, 0, 75)
-ConfigWindow.Position = UDim2.new(0.5, -87.5, 0.5, -37.5)
+-- Tăng kích thước cửa sổ config từ 175x75 lên 240x100 (tăng 37%)
+ConfigWindow.Size = UDim2.new(0, 240, 0, 100)
+ConfigWindow.Position = UDim2.new(0.5, -120, 0.5, -50)
 ConfigWindow.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 ConfigWindow.BackgroundTransparency = 1
 ConfigWindow.BorderSizePixel = 0
@@ -143,8 +145,8 @@ ConfigWindow.Parent = MainScreenGui
 UICornerConfig.CornerRadius = UDim.new(0, 10)
 UICornerConfig.Parent = ConfigWindow
 
-OrderInputBox.Size = UDim2.new(0.8, 0, 0.4, 0)
-OrderInputBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+OrderInputBox.Size = UDim2.new(0.8, 0, 0.35, 0)
+OrderInputBox.Position = UDim2.new(0.1, 0, 0.25, 0)
 OrderInputBox.PlaceholderText = "Nhập đơn hàng"
 OrderInputBox.Text = ""
 OrderInputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -153,8 +155,8 @@ OrderInputBox.TextScaled = true
 OrderInputBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 OrderInputBox.Parent = ConfigWindow
 
-DoneButton.Size = UDim2.new(0.3, 0, 0.3, 0)
-DoneButton.Position = UDim2.new(0.35, 0, 0.7, 0)
+DoneButton.Size = UDim2.new(0.35, 0, 0.25, 0)
+DoneButton.Position = UDim2.new(0.325, 0, 0.68, 0)
 DoneButton.Text = "Xong"
 DoneButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 DoneButton.Font = Enum.Font.GothamBold
