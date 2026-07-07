@@ -6,6 +6,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
 local player = Players.LocalPlayer
 
 --================================================================
@@ -53,6 +54,8 @@ local COL_GREEN     = Color3.fromRGB(80, 255, 150)
 local COL_RED       = Color3.fromRGB(255, 90, 90)
 local COL_MUTED     = Color3.fromRGB(150, 160, 185)
 local COL_TEXT      = Color3.fromRGB(235, 240, 250)
+
+local PANEL_WIDTH   = 300
 
 local function corner(inst, radius)
     local c = Instance.new("UICorner")
@@ -118,7 +121,7 @@ SG.Parent = playerGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 300, 0, 138)
+MainFrame.Size = UDim2.new(0, PANEL_WIDTH, 0, 138)
 MainFrame.Position = UDim2.new(0.5, -150, 0, 12)
 MainFrame.BackgroundColor3 = BG_COLOR
 MainFrame.BackgroundTransparency = 1
@@ -250,9 +253,20 @@ end
 makeDivider(48)
 
 --================================================================
--- INFO ROWS (order / player / timer) with icon + value styling
+-- INFO ROWS
+-- Player row: giữ nguyên kiểu 1 dòng (username luôn ngắn, đã bị che bớt).
+-- Order row: đổi sang bố cục 2 tầng (nhãn ở trên, giá trị wrap xuống dưới)
+-- để không bao giờ bị cắt bớt (...) nữa, và panel sẽ tự giãn chiều cao.
 --================================================================
 
+local ROW_PADDING_X   = 14
+local ROW_CONTENT_W   = PANEL_WIDTH - ROW_PADDING_X * 2 -- bề rộng khả dụng cho text
+local ORDER_ROW_Y     = 60
+local ROW_SPACING     = 10
+local BOTTOM_PADDING  = 16
+local MIN_PANEL_HEIGHT = 138
+
+-- Row kiểu cũ (dùng cho Người chơi) — 1 dòng, có icon + nhãn + giá trị cùng hàng
 local function makeInfoRow(y, icon, labelText, valueColor)
     local row = Instance.new("Frame")
     row.Size = UDim2.new(1, -28, 0, 30)
@@ -296,11 +310,86 @@ local function makeInfoRow(y, icon, labelText, valueColor)
     valueLbl.ZIndex = 12
     valueLbl.Parent = row
 
-    return valueLbl
+    return row, valueLbl
 end
 
-local OrderValueLbl = makeInfoRow(60, "📦", "Đơn hàng", COL_CYAN)
-local PlayerValueLbl = makeInfoRow(94, "👤", "Người chơi", COL_TEXT)
+-- Row kiểu mới (dùng cho Đơn hàng) — nhãn ở tầng trên, giá trị wrap nhiều dòng ở dưới
+local OrderRow = Instance.new("Frame")
+OrderRow.Size = UDim2.new(1, -28, 0, 20) -- chiều cao sẽ được tính lại trong updateLayout()
+OrderRow.Position = UDim2.new(0, ROW_PADDING_X, 0, ORDER_ROW_Y)
+OrderRow.BackgroundTransparency = 1
+OrderRow.ZIndex = 11
+OrderRow.Parent = MainFrame
+
+local OrderHeaderRow = Instance.new("Frame")
+OrderHeaderRow.Size = UDim2.new(1, 0, 0, 20)
+OrderHeaderRow.Position = UDim2.new(0, 0, 0, 0)
+OrderHeaderRow.BackgroundTransparency = 1
+OrderHeaderRow.ZIndex = 11
+OrderHeaderRow.Parent = OrderRow
+
+local OrderIconLbl = Instance.new("TextLabel")
+OrderIconLbl.Size = UDim2.new(0, 24, 1, 0)
+OrderIconLbl.BackgroundTransparency = 1
+OrderIconLbl.Text = "📦"
+OrderIconLbl.TextSize = 17
+OrderIconLbl.Font = Enum.Font.GothamBold
+OrderIconLbl.TextXAlignment = Enum.TextXAlignment.Left
+OrderIconLbl.ZIndex = 12
+OrderIconLbl.Parent = OrderHeaderRow
+
+local OrderTagLbl = Instance.new("TextLabel")
+OrderTagLbl.Size = UDim2.new(1, -26, 1, 0)
+OrderTagLbl.Position = UDim2.new(0, 26, 0, 0)
+OrderTagLbl.BackgroundTransparency = 1
+OrderTagLbl.Text = "Đơn hàng"
+OrderTagLbl.TextColor3 = COL_MUTED
+OrderTagLbl.Font = Enum.Font.GothamSemibold
+OrderTagLbl.TextSize = 13
+OrderTagLbl.TextXAlignment = Enum.TextXAlignment.Left
+OrderTagLbl.ZIndex = 12
+OrderTagLbl.Parent = OrderHeaderRow
+
+local OrderValueLbl = Instance.new("TextLabel")
+OrderValueLbl.Size = UDim2.new(1, 0, 0, 20) -- chiều cao sẽ được tính lại trong updateLayout()
+OrderValueLbl.Position = UDim2.new(0, 0, 0, 22)
+OrderValueLbl.BackgroundTransparency = 1
+OrderValueLbl.Text = ""
+OrderValueLbl.TextColor3 = COL_CYAN
+OrderValueLbl.Font = Enum.Font.GothamBold
+OrderValueLbl.TextSize = 17
+OrderValueLbl.TextXAlignment = Enum.TextXAlignment.Left
+OrderValueLbl.TextYAlignment = Enum.TextYAlignment.Top
+OrderValueLbl.TextWrapped = true -- << cho phép xuống dòng thay vì bị cắt "..."
+OrderValueLbl.ZIndex = 12
+OrderValueLbl.Parent = OrderRow
+
+local PlayerRow, PlayerValueLbl = makeInfoRow(94, "👤", "Người chơi", COL_TEXT)
+
+--================================================================
+-- LAYOUT TỰ ĐỘNG: tính lại chiều cao dựa trên độ dài nội dung đơn hàng
+--================================================================
+
+local function updateLayout()
+    local text = (OrderValueLbl.Text ~= "" and OrderValueLbl.Text) or " "
+    local bounds = TextService:GetTextSize(
+        text,
+        OrderValueLbl.TextSize,
+        OrderValueLbl.Font,
+        Vector2.new(ROW_CONTENT_W, math.huge)
+    )
+    local valueHeight = math.max(20, bounds.Y + 4)
+    OrderValueLbl.Size = UDim2.new(1, 0, 0, valueHeight)
+
+    local orderRowHeight = 22 + valueHeight
+    OrderRow.Size = UDim2.new(1, -28, 0, orderRowHeight)
+
+    local playerY = ORDER_ROW_Y + orderRowHeight + ROW_SPACING
+    PlayerRow.Position = UDim2.new(0, 14, 0, playerY)
+
+    local panelHeight = math.max(MIN_PANEL_HEIGHT, playerY + 30 + BOTTOM_PADDING)
+    MainFrame.Size = UDim2.new(0, PANEL_WIDTH, 0, panelHeight)
+end
 
 --================================================================
 -- STATE LOAD
@@ -312,6 +401,8 @@ local configData = loadConfigs(username)
 OrderValueLbl.Text = configData.order
 local visibleUsername = string.sub(username, 1, math.max(1, #username - 4)) .. "****"
 PlayerValueLbl.Text = visibleUsername
+
+updateLayout()
 
 --================================================================
 -- SINGLE ANIMATION LOOP (rainbow bar scroll + pulse dot)
@@ -467,6 +558,7 @@ CfgCloseBtn.MouseButton1Click:Connect(hideConfigWindow)
 ClearButton.MouseButton1Click:Connect(function()
     saveConfigs(username, { order = "[Trống]" })
     OrderValueLbl.Text = "[Trống]"
+    updateLayout()
     print("Đã xóa thông tin đơn hàng của tài khoản: " .. username)
 end)
 
@@ -474,6 +566,7 @@ local function commitOrder()
     local newOrder = OrderInputBox.Text
     if newOrder ~= "" then
         OrderValueLbl.Text = newOrder
+        updateLayout()
         saveConfigs(username, { order = newOrder })
         print("Đã lưu chỉnh sửa đơn hàng cho tài khoản: " .. username)
         hideConfigWindow()
