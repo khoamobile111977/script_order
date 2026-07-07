@@ -118,7 +118,7 @@ SG.Parent = playerGui
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 300, 0, 132)
+MainFrame.Size = UDim2.new(0, 300, 0, 138)
 MainFrame.Position = UDim2.new(0.5, -150, 0, 12)
 MainFrame.BackgroundColor3 = BG_COLOR
 MainFrame.BackgroundTransparency = 1
@@ -255,42 +255,42 @@ makeDivider(48)
 
 local function makeInfoRow(y, icon, labelText, valueColor)
     local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, -28, 0, 22)
+    row.Size = UDim2.new(1, -28, 0, 30)
     row.Position = UDim2.new(0, 14, 0, y)
     row.BackgroundTransparency = 1
     row.ZIndex = 11
     row.Parent = MainFrame
 
     local iconLbl = Instance.new("TextLabel")
-    iconLbl.Size = UDim2.new(0, 20, 1, 0)
+    iconLbl.Size = UDim2.new(0, 24, 1, 0)
     iconLbl.BackgroundTransparency = 1
     iconLbl.Text = icon
-    iconLbl.TextSize = 13
+    iconLbl.TextSize = 17
     iconLbl.Font = Enum.Font.GothamBold
     iconLbl.TextXAlignment = Enum.TextXAlignment.Left
     iconLbl.ZIndex = 12
     iconLbl.Parent = row
 
     local tagLbl = Instance.new("TextLabel")
-    tagLbl.Size = UDim2.new(0, 78, 1, 0)
-    tagLbl.Position = UDim2.new(0, 22, 0, 0)
+    tagLbl.Size = UDim2.new(0, 88, 1, 0)
+    tagLbl.Position = UDim2.new(0, 26, 0, 0)
     tagLbl.BackgroundTransparency = 1
     tagLbl.Text = labelText
     tagLbl.TextColor3 = COL_MUTED
     tagLbl.Font = Enum.Font.GothamSemibold
-    tagLbl.TextSize = 11
+    tagLbl.TextSize = 13
     tagLbl.TextXAlignment = Enum.TextXAlignment.Left
     tagLbl.ZIndex = 12
     tagLbl.Parent = row
 
     local valueLbl = Instance.new("TextLabel")
-    valueLbl.Size = UDim2.new(1, -104, 1, 0)
-    valueLbl.Position = UDim2.new(0, 104, 0, 0)
+    valueLbl.Size = UDim2.new(1, -116, 1, 0)
+    valueLbl.Position = UDim2.new(0, 116, 0, 0)
     valueLbl.BackgroundTransparency = 1
     valueLbl.Text = ""
     valueLbl.TextColor3 = valueColor or COL_TEXT
     valueLbl.Font = Enum.Font.GothamBold
-    valueLbl.TextSize = 12
+    valueLbl.TextSize = 17
     valueLbl.TextXAlignment = Enum.TextXAlignment.Left
     valueLbl.TextTruncate = Enum.TextTruncate.AtEnd
     valueLbl.ZIndex = 12
@@ -299,9 +299,8 @@ local function makeInfoRow(y, icon, labelText, valueColor)
     return valueLbl
 end
 
-local OrderValueLbl = makeInfoRow(58, "📦", "Đơn hàng", COL_CYAN)
-local PlayerValueLbl = makeInfoRow(84, "👤", "Người chơi", COL_TEXT)
-local TimeValueLbl = makeInfoRow(110, "⏱", "Thời gian", COL_MUTED)
+local OrderValueLbl = makeInfoRow(60, "📦", "Đơn hàng", COL_CYAN)
+local PlayerValueLbl = makeInfoRow(94, "👤", "Người chơi", COL_TEXT)
 
 --================================================================
 -- STATE LOAD
@@ -313,19 +312,6 @@ local configData = loadConfigs(username)
 OrderValueLbl.Text = configData.order
 local visibleUsername = string.sub(username, 1, math.max(1, #username - 4)) .. "****"
 PlayerValueLbl.Text = visibleUsername
-
-local injectStartTime = os.time()
-task.spawn(function()
-    while SG and SG.Parent do
-        local elapsed = os.time() - injectStartTime
-        local minutes = math.floor(elapsed / 60)
-        local seconds = elapsed % 60
-        pcall(function()
-            TimeValueLbl.Text = string.format("%02d:%02d", minutes, seconds)
-        end)
-        task.wait(1)
-    end
-end)
 
 --================================================================
 -- SINGLE ANIMATION LOOP (rainbow bar scroll + pulse dot)
