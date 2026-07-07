@@ -1,6 +1,8 @@
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
+repeat wait() until game:IsLoaded()
+repeat wait() until game.Players and game.Players.LocalPlayer
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
